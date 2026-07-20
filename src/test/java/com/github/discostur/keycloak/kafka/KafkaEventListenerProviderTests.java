@@ -156,13 +156,30 @@ class KafkaEventListenerProviderTests {
 	}
 
 	@Test
-	void shouldCloseProducerOnClose() throws Exception {
+	void shouldKeepProducerOpenAcrossClose() throws Exception {
+		// Regression test: Keycloak calls close() after every session, but the provider is a
+		// shared singleton — closing the shared producer there breaks all subsequent events.
 		MockProducer<?, ?> producer = getProducerUsingReflection();
-		assertFalse(producer.closed());
 
 		listener.close();
 
-		assertTrue(producer.closed(), "close() must close the underlying Kafka producer");
+		assertFalse(producer.closed(), "close() must not close the shared Kafka producer");
+
+		Event event = new Event();
+		event.setType(EventType.REGISTER);
+		listener.onEvent(event);
+
+		assertEquals(1, producer.history().size(), "events after close() must still be produced");
+	}
+
+	@Test
+	void shouldCloseProducerOnShutdown() throws Exception {
+		MockProducer<?, ?> producer = getProducerUsingReflection();
+		assertFalse(producer.closed());
+
+		listener.shutdown();
+
+		assertTrue(producer.closed(), "shutdown() must close the underlying Kafka producer");
 	}
 
 	@Test

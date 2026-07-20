@@ -47,8 +47,8 @@ class KafkaEventListenerProviderIT {
 		event.setUserId("user-123");
 
 		listener.onEvent(event);
-		// close() flushes pending sends and releases the producer.
-		listener.close();
+		// shutdown() flushes pending sends and releases the producer.
+		listener.shutdown();
 
 		List<String> values = consumeAll(Duration.ofSeconds(20));
 

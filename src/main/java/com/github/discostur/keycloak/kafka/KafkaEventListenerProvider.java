@@ -90,6 +90,12 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
 
 	@Override
 	public void close() {
+		// Keycloak calls close() at the end of every session, but this provider is a
+		// shared singleton owning a shared producer. The producer is released via
+		// shutdown(), invoked from the factory's close() at server shutdown.
+	}
+
+	void shutdown() {
 		if (producer != null) {
 			producer.close();
 		}

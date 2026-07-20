@@ -81,7 +81,7 @@ public class KafkaEventListenerProviderFactory implements EventListenerProviderF
 	@Override
 	public void close() {
 		if (instance != null) {
-			instance.close();
+			instance.shutdown();
 		}
 	}
 }
