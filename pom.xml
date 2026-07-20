@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.discostur.keycloak</groupId>
 	<artifactId>keycloak-kafka</artifactId>
-	<version>1.6.0</version>
+	<version>1.6.1</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -12,7 +12,7 @@
 		     (Keycloak 19/21 commonly run on 17), while still building fine on JDK 21. -->
 		<maven.compiler.release>17</maven.compiler.release>
 
-		<keycloak.version>26.6.4</keycloak.version>
+		<keycloak.version>26.7.0</keycloak.version>
 		<kafka.version>4.3.1</kafka.version>
 		<jboss-logging.version>3.6.2.Final</jboss-logging.version>
 		<!-- Keep aligned with the jackson-databind version keycloak-core pulls in
