@@ -1,15 +1,25 @@
 package com.github.discostur.keycloak.kafka;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.keycloak.Config.SystemPropertiesConfigProvider;
 
 class KafkaProducerConfigTests {
+
+	@BeforeEach
+	void setUp() {
+		// init() falls back to KAFKA_* env vars, which would leak into the exact-match
+		// assertions below; skip instead of failing on preconfigured machines.
+		assumeTrue(System.getenv().keySet().stream().noneMatch(k -> k.startsWith("KAFKA_")),
+				"KAFKA_* environment variables present; skipping env-sensitive config tests");
+	}
 
 	@AfterEach
 	void cleanUp() {

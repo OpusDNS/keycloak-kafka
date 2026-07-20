@@ -1,5 +1,6 @@
 package com.github.discostur.keycloak.kafka;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import org.jboss.logging.Logger;
@@ -44,19 +45,22 @@ public class KafkaEventListenerProviderFactory implements EventListenerProviderF
 		String eventsString = config.get("events", System.getenv("KAFKA_EVENTS"));
 
 		if (eventsString != null) {
-			events = eventsString.split(",");
+			events = Arrays.stream(eventsString.split(","))
+					.map(String::trim)
+					.filter(s -> !s.isEmpty())
+					.toArray(String[]::new);
 		}
 
 		if (topicEvents == null) {
-			throw new NullPointerException("topic must not be null.");
+			throw new IllegalStateException("topicEvents / KAFKA_TOPIC must not be null.");
 		}
 
 		if (clientId == null) {
-			throw new NullPointerException("clientId must not be null.");
+			throw new IllegalStateException("clientId / KAFKA_CLIENT_ID must not be null.");
 		}
 
 		if (bootstrapServers == null) {
-			throw new NullPointerException("bootstrapServers must not be null");
+			throw new IllegalStateException("bootstrapServers / KAFKA_BOOTSTRAP_SERVERS must not be null.");
 		}
 
 		if (events == null || events.length == 0) {
