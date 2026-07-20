@@ -2,9 +2,9 @@
 Simple module for [Keycloak](https://www.keycloak.org/) to produce keycloak events to [Kafka](https://kafka.apache.org/).
 
 > **Fork notice.** This is a maintained fork of [SnuK87/keycloak-kafka](https://github.com/SnuK87/keycloak-kafka)
-> (Apache License 2.0). It continues development that stalled upstream — notably Apache Kafka 4.2.x /
-> Keycloak 26.5.x support, a KRaft-based docker-compose, expanded tests, and a renamed
-> `com.github.discostur` namespace. See [`NOTICE`](NOTICE) for attribution.
+> (Apache License 2.0). It continues development that stalled upstream — notably support for current
+> Apache Kafka and Keycloak releases (see the compatibility table below), a KRaft-based docker-compose,
+> expanded tests, and a renamed `com.github.discostur` namespace. See [`NOTICE`](NOTICE) for attribution.
 
 - [Keycloak Kafka Module](#keycloak-kafka-module)
   * [Build](#build)
@@ -121,13 +121,16 @@ As mentioned above the kafka client can be configured by passing parameters to t
 ```
 
 ### Delivery semantics
-Events are produced **asynchronously** (fire-and-forget): `onEvent` never blocks the Keycloak request
-thread waiting for Kafka. If a send fails the error is logged but the event is **not retried** and may be
+Events are produced **asynchronously** (fire-and-forget): `onEvent` does not wait for the broker to
+acknowledge a send. If a send fails the error is logged but the event is **not retried** and may be
 lost. Tune the relevant Kafka producer settings to match your durability needs, e.g.:
 
 - `acks` — set to `all` for the strongest delivery guarantee.
 - `retries` / `delivery.timeout.ms` — how hard the client retries before giving up.
 - `max.block.ms` — how long a send may block when the broker is unreachable or buffers are full.
+  The Kafka default is **60 seconds**, and this blocking happens on the Keycloak request thread —
+  set it to a low value (e.g. `KAFKA_MAX_BLOCK_MS=5000` or lower) so an unreachable broker cannot
+  stall logins for a minute per event.
 
 All of these can be set via the `KAFKA_*` env vars or `--spi-events-listener-kafka-*` parameters described above.
 

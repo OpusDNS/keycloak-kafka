@@ -3,10 +3,12 @@ package com.github.discostur.keycloak.kafka;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.lang.reflect.Field;
 import java.util.Map;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.Config.Scope;
@@ -17,7 +19,19 @@ class KafkaEventListenerProviderFactoryTests {
 
 	@BeforeEach
 	void setUp() {
+		// Factory.init() falls back to KAFKA_* env vars; a preconfigured environment would
+		// change the outcomes below, so skip instead of failing spuriously.
+		assumeTrue(System.getenv().keySet().stream().noneMatch(k -> k.startsWith("KAFKA_")),
+				"KAFKA_* environment variables present; skipping env-sensitive factory tests");
 		factory = new KafkaEventListenerProviderFactory();
+	}
+
+	@AfterEach
+	void tearDown() {
+		// init() creates a real KafkaProducer; close it so tests don't leak producer threads.
+		if (factory != null) {
+			factory.close();
+		}
 	}
 
 	private static Scope scopeOf(Map<String, String> props) {
@@ -40,19 +54,19 @@ class KafkaEventListenerProviderFactoryTests {
 	@Test
 	void shouldThrowWhenTopicEventsIsNull() {
 		Scope scope = scopeOf(Map.of("clientId", "kc", "bootstrapServers", "localhost:9092"));
-		assertThrows(NullPointerException.class, () -> factory.init(scope));
+		assertThrows(IllegalStateException.class, () -> factory.init(scope));
 	}
 
 	@Test
 	void shouldThrowWhenClientIdIsNull() {
 		Scope scope = scopeOf(Map.of("topicEvents", "keycloak-events", "bootstrapServers", "localhost:9092"));
-		assertThrows(NullPointerException.class, () -> factory.init(scope));
+		assertThrows(IllegalStateException.class, () -> factory.init(scope));
 	}
 
 	@Test
 	void shouldThrowWhenBootstrapServersIsNull() {
 		Scope scope = scopeOf(Map.of("topicEvents", "keycloak-events", "clientId", "kc"));
-		assertThrows(NullPointerException.class, () -> factory.init(scope));
+		assertThrows(IllegalStateException.class, () -> factory.init(scope));
 	}
 
 	@Test
@@ -76,6 +90,21 @@ class KafkaEventListenerProviderFactoryTests {
 				"clientId", "kc",
 				"bootstrapServers", "localhost:9092",
 				"events", "REGISTER,LOGIN,LOGOUT"
+		));
+		factory.init(scope);
+
+		Field eventsField = KafkaEventListenerProviderFactory.class.getDeclaredField("events");
+		eventsField.setAccessible(true);
+		assertArrayEquals(new String[] { "REGISTER", "LOGIN", "LOGOUT" }, (String[]) eventsField.get(factory));
+	}
+
+	@Test
+	void shouldTrimWhitespaceAndSkipEmptyEntriesInEventTypes() throws Exception {
+		Scope scope = scopeOf(Map.of(
+				"topicEvents", "keycloak-events",
+				"clientId", "kc",
+				"bootstrapServers", "localhost:9092",
+				"events", "REGISTER, LOGIN ,,LOGOUT"
 		));
 		factory.init(scope);
 

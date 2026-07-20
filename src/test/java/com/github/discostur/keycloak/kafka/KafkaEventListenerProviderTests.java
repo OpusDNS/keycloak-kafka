@@ -201,6 +201,29 @@ class KafkaEventListenerProviderTests {
 	}
 
 	@Test
+	void shouldNotThrowWhenSendFailsSynchronously() {
+		// send() can throw synchronously (serialization, exhausted buffer, metadata timeout);
+		// that must never propagate into the Keycloak request thread.
+		MockProducer<String, String> throwingProducer = new MockProducer<>(true, NOOP_PARTITIONER,
+				new StringSerializer(), new StringSerializer()) {
+			@Override
+			public java.util.concurrent.Future<org.apache.kafka.clients.producer.RecordMetadata> send(
+					org.apache.kafka.clients.producer.ProducerRecord<String, String> record,
+					org.apache.kafka.clients.producer.Callback callback) {
+				throw new org.apache.kafka.common.KafkaException("buffer exhausted");
+			}
+		};
+		KafkaProducerFactory throwingFactory = (clientId, bootstrapServer, props) -> throwingProducer;
+		listener = new KafkaEventListenerProvider("", "", "", new String[] { "REGISTER" }, "admin-events", Map.of(),
+				throwingFactory);
+
+		Event event = new Event();
+		event.setType(EventType.REGISTER);
+
+		assertDoesNotThrow(() -> listener.onEvent(event));
+	}
+
+	@Test
 	void shouldNotThrowWhenEventIsNull() {
 		assertDoesNotThrow(() -> listener.onEvent((Event) null));
 	}

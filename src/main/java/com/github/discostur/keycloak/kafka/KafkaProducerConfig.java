@@ -14,12 +14,13 @@ public class KafkaProducerConfig {
 
     for (KafkaProducerProperty property : producerProperties) {
       String propertyEnv = System.getenv("KAFKA_" + property.name());
+      String value = scope.get(property.getName(), propertyEnv);
 
       if (property == KafkaProducerProperty.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM &&
-          ("disabled").equalsIgnoreCase(scope.get(property.getName(), propertyEnv))) {
+          ("disabled").equalsIgnoreCase(value)) {
         propertyMap.put(property.getName(), "");
-      } else if (property.getName() != null && scope.get(property.getName(), propertyEnv) != null) {
-        propertyMap.put(property.getName(), scope.get(property.getName(), propertyEnv));
+      } else if (value != null) {
+        propertyMap.put(property.getName(), value);
       }
     }
 
