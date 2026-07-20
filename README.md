@@ -22,7 +22,7 @@ Simple module for [Keycloak](https://www.keycloak.org/) to produce keycloak even
 
 | Component      | Supported         | Built & tested against |
 |----------------|-------------------|------------------------|
-| Keycloak       | `19.x` – `26.6.x` | `26.6.4`               |
+| Keycloak       | `19.x` – `26.7.x` | `26.7.0`               |
 | Kafka broker   | `2.1.x` – `4.3.x` | client `4.3.1`         |
 | Java (runtime) | `17` or newer     | JDK `21`               |
 
