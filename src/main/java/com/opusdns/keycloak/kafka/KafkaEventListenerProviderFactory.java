@@ -1,4 +1,4 @@
-package com.github.discostur.keycloak.kafka;
+package com.opusdns.keycloak.kafka;
 
 import java.util.Arrays;
 import java.util.Map;

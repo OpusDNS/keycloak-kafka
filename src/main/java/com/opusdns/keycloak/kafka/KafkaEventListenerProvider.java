@@ -1,4 +1,4 @@
-package com.github.discostur.keycloak.kafka;
+package com.opusdns.keycloak.kafka;
 
 import java.time.Duration;
 import java.util.EnumSet;

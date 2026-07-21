@@ -1,4 +1,4 @@
-package com.github.discostur.keycloak.kafka;
+package com.opusdns.keycloak.kafka;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

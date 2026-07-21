@@ -4,7 +4,7 @@ Simple module for [Keycloak](https://www.keycloak.org/) to produce keycloak even
 > **Fork notice.** This is a maintained fork of [SnuK87/keycloak-kafka](https://github.com/SnuK87/keycloak-kafka)
 > (Apache License 2.0). It continues development that stalled upstream — notably support for current
 > Apache Kafka and Keycloak releases (see the compatibility table below), a KRaft-based docker-compose,
-> expanded tests, and a renamed `com.github.discostur` namespace. See [`NOTICE`](NOTICE) for attribution.
+> expanded tests, and a renamed `com.opusdns` namespace. See [`NOTICE`](NOTICE) for attribution.
 
 - [Keycloak Kafka Module](#keycloak-kafka-module)
   * [Build](#build)
@@ -65,7 +65,7 @@ mvn verify
 ```
 
 ## Installation
-First you need to build or [download](https://github.com/discostur/keycloak-kafka/releases) the keycloak-kafka module.
+First you need to build or [download](https://github.com/OpusDNS/keycloak-kafka/releases) the keycloak-kafka module.
 
 To install the module to your keycloak server you have to configure the module and deploy it.
 If you deploy the module without configuration, your keycloak server will fail to start throwing a `NullPointerException`.
