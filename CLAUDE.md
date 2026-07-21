@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Keycloak event listener SPI module that produces Keycloak (admin) events to Kafka as JSON. Maintained fork of SnuK87/keycloak-kafka under the `com.github.discostur.keycloak.kafka` namespace. The deliverable is a single fat jar dropped into Keycloak's `providers/` folder.
+Keycloak event listener SPI module that produces Keycloak (admin) events to Kafka as JSON. Maintained fork of SnuK87/keycloak-kafka under the `com.opusdns.keycloak.kafka` namespace. The deliverable is a single fat jar dropped into Keycloak's `providers/` folder.
 
 ## Commands
 
@@ -36,7 +36,7 @@ Releases: bump `<version>` in `pom.xml`, then `git tag vX.Y.Z && git push origin
 
 ## Architecture
 
-Small SPI plugin, ~5 main classes in `src/main/java/com/github/discostur/keycloak/kafka/`:
+Small SPI plugin, ~5 main classes in `src/main/java/com/opusdns/keycloak/kafka/`:
 
 - `KafkaEventListenerProviderFactory` — registered via `META-INF/services/org.keycloak.events.EventListenerProviderFactory` under id `kafka`. `init()` reads config once at startup (SPI params `--spi-events-listener-kafka-*` with `KAFKA_*` env vars as fallback via `config.get(name, System.getenv(...))`), fails fast with NPE on missing required config, and **eagerly** builds a single `KafkaEventListenerProvider` instance — `create()` just returns it. This eager-singleton pattern is deliberate (no lazy-init race); keep it.
 - `KafkaEventListenerProvider` — holds the Kafka producer for the process lifetime. Serializes `Event`/`AdminEvent` to JSON with Jackson and sends **asynchronously** (fire-and-forget with a logging callback; `onEvent` must never block the Keycloak request thread). User events are filtered by configured `EventType` list (default `REGISTER`; unknown types logged and skipped); admin events go to `topicAdminEvents` only if that topic is set.
