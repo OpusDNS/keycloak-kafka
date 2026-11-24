@@ -17,7 +17,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - uses: actions/checkout@v7
@@ -27,6 +27,11 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
+    - name: Set up Maven
+      # The self-hosted runners have no Maven; setup-java installs only the JDK.
+      uses: stCarolas/setup-maven@v5
+      with:
+        maven-version: 3.9.11
     # `verify` runs the Testcontainers integration test too; GitHub-hosted runners provide Docker.
     - name: Build and test with Maven
       run: mvn -B verify --file pom.xml
